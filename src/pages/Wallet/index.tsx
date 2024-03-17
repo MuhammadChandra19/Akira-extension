@@ -3,12 +3,11 @@ import { Card } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAccount } from '@/hooks/useAccount'
-import { goerli } from '@/lib/models/chain'
 import { useNavigate } from 'react-router-dom'
 
 const Wallet = () => {
   const navigate = useNavigate()
-  const { address, accountBalance, setWallet} = useAccount()
+  const { address, accountBalance, setWallet, chain} = useAccount()
 
   const logout = () => {
     setWallet(undefined)
@@ -16,7 +15,7 @@ const Wallet = () => {
   }
 
   const goToExplorer = () => {
-    window.open(`${goerli.blockExplorerUrl}/address/${address}`)
+    window.open(`${chain.blockExplorerUrl}/address/${address}`)
   }
   return (
     <div className="content">
