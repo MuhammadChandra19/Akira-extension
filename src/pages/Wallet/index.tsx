@@ -1,33 +1,40 @@
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useAccount } from '@/hooks/useAccount'
-import { useNavigate } from 'react-router-dom'
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useAccount } from "@/hooks/useAccount";
+import { useNavigate } from "react-router-dom";
 
 const Wallet = () => {
-  const navigate = useNavigate()
-  const { address, accountBalance, setWallet, chain} = useAccount()
+  const navigate = useNavigate();
+  const { address, accountBalance, setWallet, chain } = useAccount();
 
   const logout = () => {
-    setWallet(undefined)
-    navigate("/")
-  }
+    setWallet(undefined);
+    navigate("/");
+  };
 
   const goToExplorer = () => {
-    window.open(`${chain.blockExplorerUrl}/address/${address}`)
-  }
+    window.open(`${chain.blockExplorerUrl}/address/${address}`);
+  };
   return (
     <div className="content">
       <Card className="w-full p-2">
-        <div className="flex justify-between w-full">
-          <div className="flex flex-col gap-2 grow">
+        <div className="flex w-full justify-between">
+          <div className="flex grow flex-col gap-2">
             <h1 className="font-semibold">Wallet</h1>
             <div className="font-semibold">Balance: {accountBalance} ETH</div>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger onClick={goToExplorer}>
-                  <Button variant="ghost" className="text-blue-700 m-auto">{address!.slice(0,4)}...{address!.slice(38)}</Button>
+                  <Button variant="ghost" className="m-auto text-blue-700">
+                    {address!.slice(0, 4)}...{address!.slice(38)}
+                  </Button>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>{address}</p>
@@ -53,7 +60,7 @@ const Wallet = () => {
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Wallet
+export default Wallet;
