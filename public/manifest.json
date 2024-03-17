@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Akira Extension",
+  "version": "1.0",
+  "description": "Web3 Wallet Extension",
+  "permissions": [
+    "storage",
+    "tabs",
+    "activeTab",
+    "identity"
+  ],
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": {
+      "16": "/assets/favicon-16x16.png",
+      "48": "/assets/favicon-32x32.png",
+      "128": "/assets/android-chrome-192x192.png"
+    },
+    "default_title": "PullQuest"
+  },
+  "icons": {
+    "16": "/assets/favicon-16x16.png",
+    "48": "/assets/favicon-32x32.png",
+    "128": "/assets/android-chrome-192x192.png"
+  }
+}
