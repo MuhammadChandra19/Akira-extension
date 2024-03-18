@@ -7,15 +7,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Route, Routes } from "react-router-dom";
-import Home from "@/pages/Home";
-import RecoverAccount from "@/pages/RecoverAccount";
-import CreateAccount from "@/pages/CreateAccount";
-import Wallet from "@/pages/Wallet";
+import Home from "@/pages/home";
+import RecoverAccount from "@/pages/recover-account";
+import CreateAccount from "@/pages/create-account";
+import Wallet from "@/pages/wallet";
 import { useAccount } from "./hooks/useAccount";
 import { CHAINS_CONFIG, CHAIN_LIST } from "./lib/models/chain";
 
 function App() {
-  const { address, chain, setSelectedChain } = useAccount();
+  const { address, chain, setSelectedChain, isLoading } = useAccount();
   const hasWallet = useMemo(() => !!address, [address]);
 
   return (
@@ -40,17 +40,17 @@ function App() {
           </SelectContent>
         </Select>
       </header>
-      {hasWallet ? (
-        <Routes>
-          <Route path="/wallet" element={<Wallet />} />
-        </Routes>
-      ) : (
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/recover" element={<RecoverAccount />} />
-          <Route path="/create-account" element={<CreateAccount />} />
-        </Routes>
-      )}
+      {
+        isLoading ? (<div>Loading</div>) : (
+          <Routes>
+            <Route path="/" element={
+              hasWallet ? <Wallet /> : <Home />
+            } />
+            <Route path="/recover" element={<RecoverAccount />} />
+            <Route path="/create-account" element={<CreateAccount />} />
+          </Routes>
+        )
+      }
     </div>
   );
 }

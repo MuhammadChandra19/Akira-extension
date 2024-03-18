@@ -1,6 +1,7 @@
+import accountController from '@/lib/controller/account-controller';
 import { Chain } from "@/lib/models/chain";
-import { RootState } from "@/lib/store";
-import { setUserWallet, setChain } from "@/lib/store/accountSlice";
+import { AppDispatch, RootState } from "@/lib/store";
+import { setUserWallet, setChain, loadAccount } from "@/lib/store/account-slice";
 import { toFixedIfNecessary } from "@/utils/helper";
 import { HDNodeWallet, ethers } from "ethers";
 import { useEffect, useState } from "react";
@@ -10,11 +11,16 @@ import { useDispatch, useSelector } from "react-redux";
  * Custom hook to manage account information and interactions.
  */
 export const useAccount = () => {
-  const { address, chain } = useSelector((state: RootState) => ({
-    address: state.account.wallet?.address,
+  const { setAccount } = accountController()
+
+  const { chain, wallet, isLoading } = useSelector((state: RootState) => ({
+    wallet: state.account.wallet,
     chain: state.account.chain,
+    isLoading: state.account.isLoading
   }));
-  const dispatch = useDispatch();
+  
+
+  const dispatch = useDispatch<AppDispatch>();
 
   const [accountBalance, setAccountBalance] = useState(0.0);
 
@@ -24,6 +30,7 @@ export const useAccount = () => {
    */
   const setWallet = (wallet: HDNodeWallet | undefined) => {
     dispatch(setUserWallet(wallet));
+    setAccount({wallet, chain});
   };
 
   /**
@@ -32,6 +39,7 @@ export const useAccount = () => {
    */
   const setSelectedChain = (chain: Chain) => {
     dispatch(setChain(chain));
+    setAccount({wallet, chain});
   };
 
   /**
@@ -40,19 +48,29 @@ export const useAccount = () => {
   useEffect(() => {
     const fetchBalance = async () => {
       const provider = new ethers.JsonRpcProvider(chain.rpcUrl);
-      if (address) {
-        const accountBalance = await provider.getBalance(address);
+      if (wallet?.address) {
+        const accountBalance = await provider.getBalance(wallet?.address);
         setAccountBalance(toFixedIfNecessary(accountBalance.toString()));
       }
     };
     fetchBalance();
-  }, [address, chain.rpcUrl]);
+  }, [wallet?.address, chain.rpcUrl]);
+
+
+  useEffect(() => {
+    if(!wallet?.address) {
+      dispatch(loadAccount())
+    }
+    console.log('here')
+  }, [dispatch, wallet?.address])
 
   return {
     setWallet,
-    address,
+    address: wallet?.address,
     accountBalance,
     setSelectedChain,
     chain,
+    isLoading,
+    wallet
   };
 };

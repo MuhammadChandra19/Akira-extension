@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ethers } from "ethers";
 import { AlertCircle } from "lucide-react";
 import { useDispatch } from "react-redux";
-import { setUserWallet } from "@/lib/store/accountSlice";
+import { setUserWallet } from "@/lib/store/account-slice";
 
 const CreateAccount = () => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const CreateAccount = () => {
   const setWalletAndMnemonic = () => {
     const newWallet = ethers.Wallet.fromPhrase(newSeedPhrase);
     dispatch(setUserWallet(newWallet));
-    navigate("/wallet");
+    navigate("/");
   };
   return (
     <div className="content">
