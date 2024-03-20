@@ -1,10 +1,15 @@
+import Web3, { Contract } from 'web3';
 import { ethers } from 'ethers';
 import Chain from './chain';
 import { Wallet } from '../models/wallet';
+import { BaseTxPayload, TransactionPayload } from '../models/transaction';
 
 class ERC20Chain extends Chain {
+  private readonly web3: Web3;
   constructor(blockExplorerUrl: string, rpcUrl: string) {
     super(blockExplorerUrl, rpcUrl);
+
+    this.web3 = new Web3(new Web3.providers.HttpProvider(rpcUrl));
   }
   // private readonly blockExplorerUrl: string = 'https://etherscan.io';
   // private readonly rpcUrl: string = 'https://mainnet.infura.io/v3/c51c1c004b174d49ad7e26814ea628e2';
@@ -22,16 +27,68 @@ class ERC20Chain extends Chain {
     return [];
   }
 
-  async getGasEstimation(transaction: unknown): Promise<number> {
-    // Implementation specific to ERC20 chain
-    console.log(transaction);
-    return 0;
+  async getGasEstimation(transaction: BaseTxPayload): Promise<{
+    contract: Contract<any[]>;
+    gasEstimation: bigint;
+  }> {
+    const contractABI = await this.fetchContractABI(transaction.contractAddress);
+
+    // Load the ERC20 token contract
+    const contract = new this.web3.eth.Contract(contractABI, transaction.contractAddress);
+
+    // Estimate gas
+    const gasEstimation = await contract.methods.transfer(transaction.to, transaction.amount).estimateGas({
+      from: transaction.from,
+    });
+
+    return {
+      contract,
+      gasEstimation,
+    };
   }
 
-  async sendTransaction(transaction: unknown): Promise<unknown> {
-    // Implementation specific to ERC20 chain
-    console.log(transaction);
-    return {};
+  async sendTransaction(transaction: TransactionPayload): Promise<string> {
+    try {
+      let txParams: any;
+
+      // Check if the transaction involves transferring ether or ERC20 tokens
+      if (!transaction.asset) {
+        // Sending ether
+        txParams = {
+          from: transaction.from,
+          to: transaction.to,
+          value: this.web3.utils.toWei(transaction.amount, 'ether'),
+          gas: transaction.gasLimit,
+          gasPrice: this.web3.utils.toWei(transaction.gasPrice.toString(), 'gwei'),
+          gasLimit: transaction.gasLimit,
+        };
+      } else {
+        // Sending ERC20 token
+        if (!transaction.contractAddress) {
+          throw new Error('Contract address is required for ERC20 token transfer.');
+        }
+
+        const { contract, gasEstimation } = await this.getGasEstimation(transaction);
+        txParams = {
+          from: transaction.from,
+          to: transaction.contractAddress,
+          data: contract.methods.transfer(transaction.to, transaction.amount).encodeABI(),
+          gas: gasEstimation,
+          gasPrice: this.web3.utils.toWei(transaction.gasPrice.toString(), 'gwei'),
+          gasLimit: transaction.gasLimit,
+        };
+      }
+
+      // Send transaction
+      const signedTx = await this.web3.eth.accounts.signTransaction(txParams, transaction.signKey);
+      const receipt = await this.web3.eth.sendSignedTransaction(signedTx.rawTransaction);
+
+      // Return transaction hash
+      return receipt.transactionHash.toString();
+    } catch (error) {
+      console.error('Error sending transaction:', error);
+      throw error;
+    }
   }
 
   createmMnemonicPhrase(): string | undefined {
@@ -45,6 +102,24 @@ class ERC20Chain extends Chain {
     return {
       address: walletFromPhrase.address,
     };
+  }
+
+  private async fetchContractABI(contractAddress: string): Promise<any[]> {
+    try {
+      // Fetch the bytecode of the contract
+      const bytecode = await this.web3.eth.getCode(contractAddress);
+
+      // Decode the bytecode to extract the ABI
+      const abiStartIndex = bytecode.indexOf('{"abi"');
+      const abiEndIndex = bytecode.indexOf('"metadata"', abiStartIndex);
+      const abiJson = bytecode.substring(abiStartIndex, abiEndIndex);
+      const abi = JSON.parse(abiJson);
+
+      return abi;
+    } catch (error) {
+      console.error('Error fetching contract ABI:', error);
+      throw error;
+    }
   }
 
   getBlockExplorerUrl(): string {

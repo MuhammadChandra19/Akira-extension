@@ -1,3 +1,4 @@
+import { BaseTxPayload, TransactionPayload } from '../models/transaction';
 import { Wallet } from '../models/wallet';
 
 abstract class Chain {
@@ -12,9 +13,9 @@ abstract class Chain {
 
   abstract getUserTokens(address: string): Promise<unknown[]>;
 
-  abstract getGasEstimation(transaction: unknown): Promise<number>;
+  abstract getGasEstimation(transaction: BaseTxPayload): Promise<unknown>;
 
-  abstract sendTransaction(transaction: unknown): Promise<unknown>;
+  abstract sendTransaction(transaction: TransactionPayload): Promise<unknown>;
 
   abstract createmMnemonicPhrase(): string | undefined;
 
