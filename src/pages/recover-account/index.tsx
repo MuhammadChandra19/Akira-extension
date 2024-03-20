@@ -2,7 +2,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import useAccountStore from '@/lib/store/account-store';
-import { ethers } from "ethers";
 import { InfoIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -12,11 +11,12 @@ const RecoverAccount = () => {
   const [typedSeed, setTpyedSeed] = useState("");
   const [invalidSeedPhrase, setInvalidSeedPhrase] = useState(false);
 
-  const { setUserWallet } = useAccountStore()
+  const setUserWallet = useAccountStore((state) => state.setUserWallet)
+  const chain = useAccountStore((state) => state.chain)
 
   const recoverWallet = () => {
     try {
-      const wallet = ethers.Wallet.fromPhrase(typedSeed);
+      const wallet = chain.chain.generateNewWallet(typedSeed);
       setUserWallet(wallet);
     } catch (e) {
       setInvalidSeedPhrase(true);
