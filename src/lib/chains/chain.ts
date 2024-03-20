@@ -8,7 +8,7 @@ abstract class Chain {
     this.blockExplorerUrl = blockExplorerUrl;
     this.rpcUrl = rpcUrl;
   }
-  abstract getUserBalance(): Promise<bigint>;
+  abstract getUserBalance(wallet: Wallet): Promise<bigint>;
 
   abstract getUserTokens(address: string): Promise<unknown[]>;
 

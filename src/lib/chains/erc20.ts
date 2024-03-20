@@ -9,10 +9,10 @@ class ERC20Chain extends Chain {
   // private readonly blockExplorerUrl: string = 'https://etherscan.io';
   // private readonly rpcUrl: string = 'https://mainnet.infura.io/v3/c51c1c004b174d49ad7e26814ea628e2';
 
-  async getUserBalance(): Promise<bigint> {
+  async getUserBalance(wallet: Wallet): Promise<bigint> {
     // Implementation specific to ERC20 chain
     const provider = new ethers.JsonRpcProvider(this.rpcUrl);
-    const accountBalance = await provider.getBalance('');
+    const accountBalance = await provider.getBalance(wallet.address);
     return accountBalance;
   }
 

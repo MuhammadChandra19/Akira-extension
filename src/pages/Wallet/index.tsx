@@ -12,15 +12,14 @@ import { useNavigate } from "react-router-dom";
 
 const Wallet = () => {
   const navigate = useNavigate();
-  const { address, accountBalance, setWallet, chain } = useAccount();
+  const { address, accountBalance, chain } = useAccount();
 
   const logout = () => {
-    setWallet(undefined);
     navigate("/");
   };
 
   const goToExplorer = () => {
-    window.open(`${chain.blockExplorerUrl}/address/${address}`);
+    window.open(`${chain.chain.blockExplorerUrl}/address/${address}`);
   };
   return (
     <div className="content">
