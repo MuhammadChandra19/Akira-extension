@@ -7,7 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useAccount } from "@/hooks/useAccount";
+import { useAccount } from '@/hooks/useAccount';
 import { useNavigate } from "react-router-dom";
 
 const Wallet = () => {

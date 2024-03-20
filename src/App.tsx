@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -11,12 +11,25 @@ import Home from "@/pages/home";
 import RecoverAccount from "@/pages/recover-account";
 import CreateAccount from "@/pages/create-account";
 import Wallet from "@/pages/wallet";
-import { useAccount } from "./hooks/useAccount";
-import { CHAINS_CONFIG, CHAIN_LIST } from "./lib/models/chain";
+import useAccountStore from './lib/store/account-store';
+import { CHAIN_LIST } from './lib/chains/chain-list';
 
 function App() {
-  const { address, chain, setSelectedChain, isLoading } = useAccount();
+  const initData = useAccountStore((state) => state.populateInitialData);
+
+  const address = useAccountStore((state) => state.wallet?.address);
+  const isLoading = useAccountStore((state) => state.isLoading);
+  const chain = useAccountStore((state) => state.chain);
+
+  
+  const setSelectedChain = useAccountStore((state) => state.setChain)
+
+
   const hasWallet = useMemo(() => !!address, [address]);
+
+  useEffect(() => {
+    initData()
+  }, [initData])
 
   return (
     <div className="w-full p-2">
@@ -25,15 +38,15 @@ function App() {
           <img src="/assets/akira-logo.png" height={28} width={28} />
         </h1>
         <Select
-          onValueChange={(v) => setSelectedChain(CHAINS_CONFIG[v])}
-          defaultValue={chain.chainId}
+          onValueChange={(v) => setSelectedChain(CHAIN_LIST[v])}
+          defaultValue={chain.name}
         >
           <SelectTrigger className="mb-2 w-48">
             <SelectValue placeholder="Select Chain" />
           </SelectTrigger>
           <SelectContent>
-            {CHAIN_LIST.map((chain) => (
-              <SelectItem key={chain.chainId} value={chain.chainId}>
+            {Object.values(CHAIN_LIST).map((chain) => (
+              <SelectItem key={chain.name} value={chain.name}>
                 {chain.name}
               </SelectItem>
             ))}

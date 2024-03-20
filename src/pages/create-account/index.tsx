@@ -3,25 +3,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { ethers } from "ethers";
 import { AlertCircle } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { setUserWallet } from "@/lib/store/account-slice";
+import useAccountStore from '@/lib/store/account-store';
 
 const CreateAccount = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+
+  const chain = useAccountStore((state) => state.chain)
+  const setUserWallet = useAccountStore((state) => state.setUserWallet)
 
   const [newSeedPhrase, setNewSeedPhrase] = useState("");
 
   const generateWallet = () => {
-    const mnemonic = ethers.Wallet.createRandom().mnemonic?.phrase;
+    const mnemonic = chain.chain.createmMnemonicPhrase();
     setNewSeedPhrase(mnemonic!);
   };
 
   const setWalletAndMnemonic = () => {
-    const newWallet = ethers.Wallet.fromPhrase(newSeedPhrase);
-    dispatch(setUserWallet(newWallet));
+    const newWallet = chain.chain.generateNewWallet(newSeedPhrase);
+    setUserWallet(newWallet);
     navigate("/");
   };
   return (

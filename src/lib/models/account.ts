@@ -1,7 +1,7 @@
-import { ethers } from 'ethers';
-import { Chain } from './chain';
+import { TChain } from '../chains/chain-list';
+import { Wallet } from './wallet';
 
 export type TAccount = {
-  wallet?: ethers.HDNodeWallet;
-  chain: Chain;
+  wallet?: Wallet;
+  chain: TChain;
 };
