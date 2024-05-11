@@ -1,4 +1,4 @@
-import Web3, { Contract } from 'web3';
+import Web3, { Contract, ContractAbi, Transaction } from 'web3';
 import { ethers } from 'ethers';
 import Chain from './chain';
 import { Wallet } from '../models/wallet';
@@ -11,8 +11,6 @@ class ERC20Chain extends Chain {
 
     this.web3 = new Web3(new Web3.providers.HttpProvider(rpcUrl));
   }
-  // private readonly blockExplorerUrl: string = 'https://etherscan.io';
-  // private readonly rpcUrl: string = 'https://mainnet.infura.io/v3/c51c1c004b174d49ad7e26814ea628e2';
 
   async getUserBalance(wallet: Wallet): Promise<bigint> {
     // Implementation specific to ERC20 chain
@@ -28,7 +26,7 @@ class ERC20Chain extends Chain {
   }
 
   async getGasEstimation(transaction: BaseTxPayload): Promise<{
-    contract: Contract<any[]>;
+    contract: Contract<ContractAbi>;
     gasEstimation: bigint;
   }> {
     const contractABI = await this.fetchContractABI(transaction.contractAddress);
@@ -49,7 +47,7 @@ class ERC20Chain extends Chain {
 
   async sendTransaction(transaction: TransactionPayload): Promise<string> {
     try {
-      let txParams: any;
+      let txParams: Transaction;
 
       // Check if the transaction involves transferring ether or ERC20 tokens
       if (!transaction.asset) {
@@ -104,7 +102,7 @@ class ERC20Chain extends Chain {
     };
   }
 
-  private async fetchContractABI(contractAddress: string): Promise<any[]> {
+  private async fetchContractABI(contractAddress: string): Promise<ContractAbi> {
     try {
       // Fetch the bytecode of the contract
       const bytecode = await this.web3.eth.getCode(contractAddress);
